@@ -1,4 +1,4 @@
-# MLOps Sample Project: MNIST Digit Classification
+# MLOps Project: MNIST Digit Classification
 
 This project demonstrates **Machine Learning Operations (MLOps)** best practices using a simple Convolutional Neural Network (CNN) for MNIST digit classification. It's designed as a learning resource to understand how to structure, train, evaluate, and deploy ML models in a production-ready manner.
 
