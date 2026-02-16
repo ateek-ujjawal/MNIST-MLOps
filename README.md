@@ -18,17 +18,20 @@ MLOps (Machine Learning Operations) is a set of practices that combines Machine 
 
 ```
 .
+├── .github/workflows/
+│   └── ci.yml                # GitHub Actions CI
 ├── configs/
-│   └── config.yaml          # Centralized configuration
+│   └── config.yaml           # Centralized configuration
 ├── src/
-│   ├── model.py             # Model architecture
-│   ├── train.py             # Training script
-│   ├── evaluate.py          # Evaluation script
-│   └── inference.py         # Inference script
+│   ├── model.py              # Model architecture
+│   ├── train.py              # Training script
+│   ├── evaluate.py           # Evaluation script
+│   └── inference.py          # Inference script
+├── tests/                    # Pytest tests
 ├── models/                   # Saved models and checkpoints
 ├── logs/                     # Training logs and visualizations
 ├── data/                     # Dataset (auto-downloaded)
-├── requirements.txt          # Python dependencies
+├── requirements.txt         # Python dependencies
 └── README.md                 # This file
 ```
 
@@ -96,6 +99,13 @@ python src/inference.py --image path/to/your/image.png
 **Example**: If you have a test image, you can use it like:
 ```bash
 python src/inference.py --image test_image.png
+```
+
+### 6. Run Tests
+
+```bash
+pip install pytest
+pytest tests/ -v
 ```
 
 This will:
@@ -192,10 +202,19 @@ Production inference:
 - Makes predictions
 - Provides confidence scores
 
+## 🔄 CI (GitHub Actions)
+
+CI runs on every push and pull request to `main` or `master`:
+
+- **Workflow**: `.github/workflows/ci.yml`
+- **Jobs**: Install dependencies, run `pytest tests/` on Python 3.10, 3.11, and 3.12
+- **Tests**: Model creation/forward pass and config validation in `tests/`
+
+No secrets or deployment steps are required; push your branch and check the **Actions** tab on GitHub.
+
 ## 🛠️ Next Steps for Advanced MLOps
 
-1. **CI/CD Pipeline**: Automate training with GitHub Actions
-2. **Model Registry**: Use MLflow or Weights & Biases
+1. **Model Registry**: Use MLflow or Weights & Biases
 3. **Containerization**: Dockerize the application
 4. **Model Serving**: Create a REST API with FastAPI
 5. **Monitoring**: Track model drift and performance in production
