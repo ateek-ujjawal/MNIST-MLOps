@@ -9,7 +9,7 @@ model:
 
 training:
   batch_size: 64
-  num_epochs: 5
+  num_epochs: 15
   learning_rate: 0.001
   optimizer: "adam"
   device: "cuda"  # Use "cpu" if no GPU available

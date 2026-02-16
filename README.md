@@ -12,6 +12,7 @@ MLOps (Machine Learning Operations) is a set of practices that combines Machine 
 - **Model Checkpointing**: Saving models during training
 - **Evaluation Pipeline**: Systematic model evaluation with metrics
 - **Inference Pipeline**: Making predictions on new data
+- **Model Serving API**: REST API with FastAPI for inference
 - **Project Structure**: Organized codebase following best practices
 
 ## 📁 Project Structure
@@ -23,6 +24,7 @@ MLOps (Machine Learning Operations) is a set of practices that combines Machine 
 ├── configs/
 │   └── config.yaml           # Centralized configuration
 ├── src/
+│   ├── app.py                # FastAPI model server
 │   ├── model.py              # Model architecture
 │   ├── train.py              # Training script
 │   ├── evaluate.py           # Evaluation script
@@ -108,12 +110,33 @@ pip install pytest
 pytest tests/ -v
 ```
 
-This will:
-- Load a trained model
-- Preprocess your image
-- Make a prediction
-- Show probabilities for all classes
-- Generate a visualization
+### 7. Serve the Model with FastAPI
+
+From the project root (after training a model):
+
+```bash
+uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
+```
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Service info and links |
+| `/health` | GET | Health check; verifies model is loaded |
+| `/predict` | POST | Upload image; returns predicted digit and probabilities |
+| `/docs` | GET | Interactive Swagger UI |
+
+**Predict** accepts a multipart form with `file` = image (PNG, JPEG, etc.):
+
+```bash
+curl -X POST http://localhost:8000/predict -F "file=@path/to/digit.png"
+```
+
+Response:
+```json
+{"predicted_digit": 7, "confidence": 0.991234, "probabilities": {"0": 0.001, "1": 0.002, ...}}
+```
+
+The API loads `models/checkpoints/best.pth` (or `final_model.pth`) at startup and uses the same preprocessing as training.
 
 ## 📊 Model Architecture
 
@@ -158,7 +181,7 @@ All hyperparameters are stored in `configs/config.yaml`. This ensures:
 
 ## 📈 Expected Results
 
-After training for 5 epochs, you should see:
+After training (default: 15 epochs in config), you should see:
 - **Training Accuracy**: ~98-99%
 - **Validation Accuracy**: ~98-99%
 - **Test Accuracy**: ~98-99%
@@ -174,7 +197,7 @@ After training for 5 epochs, you should see:
    - Different architectures
    - Early stopping
    - Learning rate scheduling
-   - Model serving API (Flask/FastAPI)
+   - Model serving API (included via FastAPI)
 
 ## 🔍 Understanding the Code
 
@@ -196,11 +219,17 @@ Evaluation pipeline:
 - Generates metrics and visualizations
 
 ### `src/inference.py`
-Production inference:
+CLI inference:
 - Loads model
 - Preprocesses new images
 - Makes predictions
 - Provides confidence scores
+
+### `src/app.py`
+FastAPI REST server:
+- Loads model once at startup
+- `POST /predict` accepts image uploads and returns digit + probabilities
+- Same preprocessing as training/inference for consistency
 
 ## 🔄 CI (GitHub Actions)
 
@@ -215,11 +244,10 @@ No secrets or deployment steps are required; push your branch and check the **Ac
 ## 🛠️ Next Steps for Advanced MLOps
 
 1. **Model Registry**: Use MLflow or Weights & Biases
-3. **Containerization**: Dockerize the application
-4. **Model Serving**: Create a REST API with FastAPI
-5. **Monitoring**: Track model drift and performance in production
-6. **A/B Testing**: Compare different model versions
-7. **Data Versioning**: Track dataset versions with DVC
+2. **Containerization**: Dockerize the application (include FastAPI server)
+3. **Monitoring**: Track model drift and performance in production
+4. **A/B Testing**: Compare different model versions
+5. **Data Versioning**: Track dataset versions with DVC
 
 ## 📝 Notes
 
@@ -253,6 +281,9 @@ Feel free to experiment and extend this project! Some ideas:
 
 **Issue**: Model file not found
 - **Solution**: Run `train.py` first to train a model
+
+**Issue**: FastAPI server fails to start (model not found)
+- **Solution**: Ensure you've run `python src/train.py` and that `models/checkpoints/best.pth` or `models/final_model.pth` exists
 
 ---
 
